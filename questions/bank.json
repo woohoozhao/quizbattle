@@ -1,0 +1,37 @@
+[
+  {
+    "id": "q001",
+    "text": "1 + 1 等于多少?",
+    "options": ["1", "2", "3", "4"],
+    "correct": "2",
+    "category": "math"
+  },
+  {
+    "id": "q002",
+    "text": "5 × 6 等于多少?",
+    "options": ["25", "30", "35", "36"],
+    "correct": "30",
+    "category": "math"
+  },
+  {
+    "id": "q003",
+    "text": "100 ÷ 4 等于多少?",
+    "options": ["20", "25", "30", "40"],
+    "correct": "25",
+    "category": "math"
+  },
+  {
+    "id": "q004",
+    "text": "12 + 25 等于多少?",
+    "options": ["35", "37", "47", "57"],
+    "correct": "37",
+    "category": "math"
+  },
+  {
+    "id": "q005",
+    "text": "9 × 7 等于多少?",
+    "options": ["54", "56", "63", "72"],
+    "correct": "63",
+    "category": "math"
+  }
+]
