@@ -22,7 +22,7 @@ func main() {
 
 	baseLog := logger.New()
 
-	rds, err := storage.New(*addr, *password, baseLog)
+	rds, err := storage.New(*addr, *password)
 	if err != nil {
 		baseLog.Error("connect redis fail", slog.String("addr", *addr), slog.Any("err", err))
 		os.Exit(1)

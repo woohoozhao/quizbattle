@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log/slog"
-	"quizbattle/internal/logger"
 	"quizbattle/internal/types"
 
 	"github.com/redis/go-redis/v9"
@@ -21,12 +19,10 @@ var (
 
 type Redis struct {
 	client *redis.Client
-	logger *slog.Logger
 }
 
-func New(addr, password string, logger *slog.Logger) (*Redis, error) {
+func New(addr, password string) (*Redis, error) {
 	if len(addr) == 0 || len(password) == 0 {
-		logger.Error("miss addr or password")
 		return nil, errors.New("miss addr or password")
 	}
 	client := redis.NewClient(&redis.Options{
@@ -35,10 +31,9 @@ func New(addr, password string, logger *slog.Logger) (*Redis, error) {
 		PoolSize: 10,
 	})
 	if err := client.Ping(context.Background()).Err(); err != nil {
-		logger.Error("redis ping fail", slog.Any("err", err))
 		return nil, err
 	}
-	return &Redis{client: client, logger: logger}, nil
+	return &Redis{client: client}, nil
 }
 
 func (rds *Redis) Close() error {
@@ -46,15 +41,12 @@ func (rds *Redis) Close() error {
 }
 
 func (rds *Redis) SaveQuestion(ctx context.Context, q types.Question) error {
-	log := logger.FromContext(ctx, rds.logger)
 	data, err := json.Marshal(q)
 	if err != nil {
-		log.Error("marshal fail", slog.String("questionID", q.ID), slog.Any("err", err))
 		return err
 	}
 	ok, err := rds.client.HSetNX(ctx, questionsKey, q.ID, data).Result()
 	if err != nil {
-		log.Error("save fail")
 		return err
 	}
 	if !ok {
