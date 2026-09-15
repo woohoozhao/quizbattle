@@ -25,13 +25,17 @@ func New(addr, password string) (*Redis, error) {
 	if len(addr) == 0 || len(password) == 0 {
 		return nil, errors.New("miss addr or password")
 	}
-	client := redis.NewClient(&redis.Options{
+	var client = redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
 		PoolSize: 10,
 	})
 	if err := client.Ping(context.Background()).Err(); err != nil {
+		if err := client.Close(); err != nil {
+			return nil, err
+		}
 		return nil, err
+
 	}
 	return &Redis{client: client}, nil
 }
