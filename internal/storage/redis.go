@@ -13,7 +13,7 @@ const questionsKey = "questions:bank"
 
 var (
 	ErrQuestionNotFound = errors.New("question not found")
-	ErrQuestionExists   = errors.New("question aleady exists")
+	ErrQuestionExists   = errors.New("question already exists")
 	ErrInvalidID        = errors.New("invalid id")
 )
 

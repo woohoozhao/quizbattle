@@ -11,7 +11,12 @@ import (
 
 func runSession(ctx context.Context, conn *websocket.Conn, id uint64, log *slog.Logger) {
 	slogLog := log.With(slog.Uint64("session", id))
-	defer conn.Close(websocket.StatusNormalClosure, "bye")
+	defer func() {
+		err := conn.Close(websocket.StatusNormalClosure, "bye")
+		if err != nil {
+			slog.Error(err.Error())
+		}
+	}()
 
 	slogLog.Info("connected")
 
@@ -39,5 +44,8 @@ func runSession(ctx context.Context, conn *websocket.Conn, id uint64, log *slog.
 
 func sendErr(ctx context.Context, conn *websocket.Conn, code int, msg string) {
 	data, _ := json.Marshal(protocol.Envelope{Type: protocol.TypeError, Code: code, Msg: msg})
-	conn.Write(ctx, websocket.MessageText, data)
+	err := conn.Write(ctx, websocket.MessageText, data)
+	if err != nil {
+		slog.Error("send error", slog.Any("err", err))
+	}
 }

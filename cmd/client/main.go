@@ -29,7 +29,12 @@ func main() {
 		log.Error("dial fail", slog.Any("err", err))
 		os.Exit(1)
 	}
-	defer conn.Close(websocket.StatusNormalClosure, "")
+	defer func() {
+		err := conn.Close(websocket.StatusNormalClosure, "")
+		if err != nil {
+			log.Error("close fail", slog.Any("err", err))
+		}
+	}()
 
 	join, _ := json.Marshal(protocol.Envelope{Type: protocol.TypeJoinQueue, Name: *name})
 	if err := conn.Write(ctx, websocket.MessageText, join); err != nil {
