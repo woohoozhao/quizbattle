@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+
 	"quizbattle/internal/types"
 
 	"github.com/redis/go-redis/v9"
@@ -12,38 +13,43 @@ import (
 const questionsKey = "questions:bank"
 
 var (
+	// ErrQuestionNotFound is returned when the requested question id does not exist.
 	ErrQuestionNotFound = errors.New("question not found")
-	ErrQuestionExists   = errors.New("question already exists")
-	ErrInvalidID        = errors.New("invalid id")
+	// ErrQuestionExists is returned when attempting to create a duplicate question id.
+	ErrQuestionExists = errors.New("question already exists")
+	// ErrInvalidID is returned when the supplied id is empty or malformed.
+	ErrInvalidID = errors.New("invalid id")
 )
 
+// Redis wraps a go-redis client to provide question bank persistence.
 type Redis struct {
 	client *redis.Client
 }
 
+// New constructs a Redis-backed storage and verifies connectivity with PING.
+// On any failure the partially-allocated client pool is closed before returning.
 func New(addr, password string) (*Redis, error) {
-	if len(addr) == 0 || len(password) == 0 {
+	if addr == "" || password == "" {
 		return nil, errors.New("miss addr or password")
 	}
-	var client = redis.NewClient(&redis.Options{
+	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
 		PoolSize: 10,
 	})
 	if err := client.Ping(context.Background()).Err(); err != nil {
-		if err := client.Close(); err != nil {
-			return nil, err
-		}
+		_ = client.Close()
 		return nil, err
-
 	}
 	return &Redis{client: client}, nil
 }
 
+// Close releases the underlying redis client connection pool.
 func (rds *Redis) Close() error {
 	return rds.client.Close()
 }
 
+// SaveQuestion persists a question to the bank, returning ErrQuestionExists on duplicate id.
 func (rds *Redis) SaveQuestion(ctx context.Context, q types.Question) error {
 	data, err := json.Marshal(q)
 	if err != nil {
@@ -60,7 +66,7 @@ func (rds *Redis) SaveQuestion(ctx context.Context, q types.Question) error {
 }
 
 func (rds *Redis) GetQuestion(ctx context.Context, id string) (types.Question, error) {
-	if len(id) == 0 {
+	if id == "" {
 		return types.Question{}, ErrInvalidID
 	}
 	data, err := rds.client.HGet(ctx, questionsKey, id).Result()
@@ -77,6 +83,7 @@ func (rds *Redis) GetQuestion(ctx context.Context, id string) (types.Question, e
 	return q, nil
 }
 
+// ListQuestions returns every question in the bank.
 func (rds *Redis) ListQuestions(ctx context.Context) ([]types.Question, error) {
 	m, err := rds.client.HGetAll(ctx, questionsKey).Result()
 	if err != nil {
