@@ -7,3 +7,7 @@ type Question struct {
 	Correct  string   `json:"correct"`
 	Category string   `json:"category"`
 }
+
+type A struct {
+	name string
+}

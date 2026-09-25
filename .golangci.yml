@@ -1,0 +1,83 @@
+# golangci-lint v2 configuration.
+# Docs: https://golangci-lint.run/product/configuration-v2/
+version: "2"
+
+linters:
+  default: standard
+
+  # Enable a curated, modern set of linters on top of the defaults.
+  enable:
+    - bodyclose          # HTTP response body must be closed
+    - contextcheck       # Check whether a function uses a non-inherited context
+    - errorlint          # Find error wrapping mistakes
+    - exhaustive         # Check exhaustiveness of switch/if/else branches
+    - gocheckcompilerdirectives # Validate go:compiler-directive usage
+    - gochecknoglobals   # Detect global variables
+    - gochecknoinits     # Detect init() functions
+    - gocognit           # Cognitive complexity
+    - goconst            # Find repeated strings that could be constants
+    - gocyclo            # Cyclomatic complexity
+    - godot              # End sentences with a period
+    - gosec              # Security issues
+    - misspell           # Spelling mistakes
+    - nakedret           # Naked returns in long functions
+    - nilerr             # Returning nil from a function that returns error
+    - nilnil             # Returning nil, nil — ambiguous
+    - noctx              # Find HTTP requests without context
+    - nolintlint         # Ill-formed nolint comments
+    - prealloc           # Slice pre-allocation opportunities
+    - predeclared        # Find shadowing of Go predeclared identifiers
+    - revive             # Replacement for golint
+    - staticcheck        # Static analysis (sa + st family in v2)
+    - tparallel          # Detect missing t.Parallel() in tests
+    - unconvert          # Remove unnecessary conversions
+    - unparam            # Find unused function parameters
+    - unused             # Detect unused vars/funcs/types
+    - usestdlibvars      # Use stdlib constants instead of magic numbers
+    - wastedassign       # Find wasted assignments
+    - whitespace         # Detect leading/trailing whitespace
+
+  exclusions:
+    # Default rules plus project-specific relaxations.
+    rules:
+      - path: _test\.go
+        linters:
+          - gocognit
+          - gocyclo
+          - gosec
+          - dupl
+          - funlen
+      - linters:
+          - staticcheck
+        text: "SA1019"   # allow deprecated usages during migrations
+
+  settings:
+    gocyclo:
+      min-complexity: 15
+    godot:
+      period: true
+    revive:
+      rules:
+        - name: var-naming
+        - name: package-comments
+        - name: exported
+    staticcheck:
+      checks:
+        - all
+        - -ST1000  # suppress package-comment on each file
+        - -ST1003  # allow ALL_CAPS for initialisms
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - quizbattle
+
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+  allow-parallel-runners: true

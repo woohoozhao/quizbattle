@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-
 	"quizbattle/internal/types"
 
 	"github.com/redis/go-redis/v9"
@@ -49,6 +48,28 @@ func (rds *Redis) Close() error {
 	return rds.client.Close()
 }
 
+func (rds *Redis) SaveQuestions(ctx context.Context, qs []types.Question) error {
+
+	for _, q := range qs {
+		data, err := json.Marshal(q)
+		if err != nil {
+			return err
+		}
+		ok, err := rds.client.HSetNX(ctx, questionsKey, q.ID, data).Result()
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return ErrQuestionExists
+		}
+	}
+	return nil
+}
+
+func (rds *Redis) GetQuestions(ctx context.Context, id string) ([]types.Question, error) {
+
+}
+
 // SaveQuestion persists a question to the bank, returning ErrQuestionExists on duplicate id.
 func (rds *Redis) SaveQuestion(ctx context.Context, q types.Question) error {
 	data, err := json.Marshal(q)
@@ -80,6 +101,7 @@ func (rds *Redis) GetQuestion(ctx context.Context, id string) (types.Question, e
 	if err := json.Unmarshal([]byte(data), &q); err != nil {
 		return types.Question{}, err
 	}
+
 	return q, nil
 }
 

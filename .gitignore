@@ -1,0 +1,50 @@
+# ---- Editors / IDEs --------------------------------------------------------
+# VS Code workspace settings are per-developer; keep them out of the repo.
+.vscode/
+# IntelliJ / JetBrains.
+.idea/
+*.iml
+# Vim / Emacs / Sublime swap files.
+*.swp
+*.swo
+*~
+.\#*
+
+# ---- Go build artifacts ----------------------------------------------------
+# Compiled binaries and per-package outputs.
+/bin/
+/build/
+/dist/
+/out/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Coverage / profiling output.
+coverage.out
+coverage.html
+*.cover
+*.prof
+
+# Go workspace / vendor (when used).
+go.work
+go.work.sum
+vendor/
+
+# ---- Secrets / local config ------------------------------------------------
+# Local env overrides and secret files.
+.env
+.env.*
+!.env.example
+*.local
+config.local.yaml
+config.local.toml
+
+# ---- OS junk ---------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
